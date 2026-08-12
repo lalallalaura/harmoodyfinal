@@ -5,16 +5,32 @@ function distance(a: number, b: number) {
   return Math.abs(a - b);
 }
 
-export function recommendSongs(moodId: MoodId): { songs: Song[]; score: number } {
+export function recommendSongs(
+  moodId: MoodId
+): { songs: Song[]; score: number } {
   const mood = moods.find((item) => item.id === moodId)!;
 
   const ranked = songs
     .map((song) => {
       const moodBonus = song.moods.includes(moodId) ? 0.35 : 0;
-      const energyFit = 1 - distance(song.energy, mood.energy);
-      const valenceFit = 1 - distance(song.valence, mood.valence);
-      const bpmTarget = moodId === "energized" ? 120 : moodId === "calm" ? 80 : moodId === "romantic" ? 95 : 100;
-      const bpmFit = 1 - Math.min(distance(song.bpm, bpmTarget) / 100, 1);
+
+      const energyFit =
+        1 - distance(song.energy, mood.energy);
+
+      const valenceFit =
+        1 - distance(song.valence, mood.valence);
+
+      const bpmTarget =
+        moodId === "energized"
+          ? 120
+          : moodId === "calm"
+          ? 80
+          : moodId === "romantic"
+          ? 95
+          : 100;
+
+      const bpmFit =
+        1 - Math.min(distance(song.bpm, bpmTarget) / 100, 1);
 
       const score =
         moodBonus +
@@ -25,16 +41,22 @@ export function recommendSongs(moodId: MoodId): { songs: Song[]; score: number }
       return { song, score };
     })
     .sort((a, b) => b.score - a.score)
-    .slice(0, 6)
+    .slice(0, 12)
     .map((item) => item.song);
 
   const avgFit =
     ranked.reduce((total, song) => {
-      return total + (1 - distance(song.energy, mood.energy)) * 50 + (1 - distance(song.valence, mood.valence)) * 50;
+      return (
+        total +
+        (1 - distance(song.energy, mood.energy)) * 50 +
+        (1 - distance(song.valence, mood.valence)) * 50
+      );
     }, 0) / Math.max(ranked.length, 1);
 
   return {
     songs: ranked,
-    score: Math.round(Math.min(Math.max(avgFit, 50), 98)),
+    score: Math.round(
+      Math.min(Math.max(avgFit, 50), 98)
+    ),
   };
 }

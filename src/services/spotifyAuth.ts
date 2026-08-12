@@ -1,20 +1,8 @@
-// Autenticação com o Spotify usando Authorization Code + PKCE.
-//
-// Por que PKCE e não o fluxo "clássico" com client_secret?
-// - O Harmoody não tem backend próprio hoje.
-// - PKCE foi criado exatamente para apps que rodam 100% no navegador
-//   (SPA) e NÃO permite (nem exige) client_secret em nenhuma etapa,
-//   incluindo o refresh do token. Isso é o que o Spotify recomenda
-//   oficialmente para esse cenário.
-// - Nenhuma credencial privada precisa existir, então não há risco de
-//   vazar segredo no frontend ou no GitHub.
+
 
 const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
 const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
 
-// Apenas os escopos que o Harmoody realmente usa hoje:
-// - user-top-read: buscar as músicas mais ouvidas do usuário
-// - user-library-read: buscar músicas salvas na biblioteca do usuário
 const SPOTIFY_SCOPES = ["user-top-read", "user-library-read"].join(" ");
 
 const STORAGE_TOKEN_KEY = "harmoody_spotify_token";
@@ -24,7 +12,7 @@ const STORAGE_STATE_KEY = "harmoody_spotify_pkce_state";
 export interface SpotifyTokenData {
   accessToken: string;
   refreshToken: string;
-  expiresAt: number; // timestamp em ms
+  expiresAt: number; 
 }
 
 function getClientId(): string {
@@ -57,7 +45,6 @@ export class SpotifyAuthError extends Error {
   }
 }
 
-// ---------- PKCE helpers ----------
 
 function randomString(length: number): string {
   const possible =
@@ -79,12 +66,7 @@ function base64UrlEncode(buffer: ArrayBuffer): string {
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-// ---------- Fluxo de login ----------
 
-/**
- * Inicia o fluxo de login do Spotify: gera o code_verifier/code_challenge
- * (PKCE) e redireciona o navegador para a tela de autorização do Spotify.
- */
 export async function startSpotifyLogin(): Promise<void> {
   const clientId = getClientId();
   const redirectUri = getRedirectUri();
@@ -109,10 +91,7 @@ export async function startSpotifyLogin(): Promise<void> {
   window.location.href = `${AUTH_ENDPOINT}?${params.toString()}`;
 }
 
-/**
- * Deve ser chamado na rota de callback (/callback). Lê o "code" da URL,
- * troca por access_token/refresh_token e salva o token localmente.
- */
+
 export async function completeSpotifyLogin(
   searchParams: URLSearchParams
 ): Promise<void> {
@@ -258,11 +237,7 @@ async function refreshToken(current: SpotifyTokenData): Promise<SpotifyTokenData
   return updated;
 }
 
-/**
- * Retorna um access_token válido, renovando automaticamente se estiver
- * perto de expirar. Lança SpotifyAuthError se o usuário não estiver
- * conectado.
- */
+
 export async function getValidAccessToken(): Promise<string> {
   const token = readStoredToken();
   if (!token) {
