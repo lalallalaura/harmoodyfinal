@@ -32,9 +32,3 @@ Depois abra o endereço mostrado pelo Vite.
 ```bash
 npm run build
 ```
-
-## Observação
-
-A versão é propositalmente independente de APIs externas para não quebrar por causa de OAuth, tokens, Firebase ou mudanças da API do Spotify.
-
-Para o TCC, a integração com Spotify pode ser adicionada depois como uma camada separada, sem mexer na lógica principal de recomendação.
